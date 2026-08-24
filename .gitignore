@@ -30,3 +30,5 @@ temp/
 
 # Tesseract language models (downloaded at runtime)
 *.traineddata
+
+PRD_Social_Media_Content_Analyzer.md

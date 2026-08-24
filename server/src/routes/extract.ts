@@ -3,6 +3,8 @@ import multer from 'multer';
 import { extractTextFromPdf } from '../services/pdfExtractor.js';
 import { extractTextFromImage } from '../services/imageExtractor.js';
 
+import { analyzeContent } from '../services/analyzer.js';
+
 /** Accepted MIME types */
 const ACCEPTED_TYPES = new Set([
   'application/pdf',
@@ -40,7 +42,7 @@ const router = Router();
  * Accepts a single file upload (multipart/form-data, field name: "file").
  * Extracts text from PDF or image and returns it.
  *
- * Success response: { success: true, text: string, sourceType: "pdf" | "image" }
+ * Success response: { success: true, text: string, sourceType: "pdf" | "image", suggestions: AnalysisSuggestion[] }
  * Error response:   { success: false, error: string }
  */
 router.post('/', (req: Request, res: Response): void => {
@@ -86,11 +88,14 @@ router.post('/', (req: Request, res: Response): void => {
         sourceType = 'image';
         text = await extractTextFromImage(buffer);
       }
+      
+      const suggestions = analyzeContent(text);
 
       res.json({
         success: true,
         text,
         sourceType,
+        suggestions,
       });
     } catch (err: unknown) {
       const message = err instanceof Error

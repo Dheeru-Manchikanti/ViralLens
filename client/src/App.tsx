@@ -2,15 +2,25 @@ import { useState } from 'react';
 import FileUpload from './components/FileUpload';
 import './App.css';
 
+interface AnalysisSuggestion {
+  id: string;
+  type: 'length' | 'hashtag' | 'cta' | 'readability' | 'emoji';
+  label: string;
+  message: string;
+  status: 'good' | 'warning' | 'info';
+}
+
 function App() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedText, setExtractedText] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<AnalysisSuggestion[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const handleFileSelect = async (file: File) => {
     setIsExtracting(true);
     setError(null);
     setExtractedText(null);
+    setSuggestions([]);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -28,6 +38,7 @@ function App() {
       }
 
       setExtractedText(data.text);
+      setSuggestions(data.suggestions || []);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'An unexpected error occurred.';
       setError(message);
@@ -38,7 +49,36 @@ function App() {
 
   const handleReset = () => {
     setExtractedText(null);
+    setSuggestions([]);
     setError(null);
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'good':
+        return (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="status-icon good">
+            <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.2"/>
+            <path d="M8 12L11 15L16 9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        );
+      case 'warning':
+        return (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="status-icon warning">
+            <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.2"/>
+            <path d="M12 8V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="12" cy="16" r="1" fill="currentColor"/>
+          </svg>
+        );
+      default:
+        return (
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="status-icon info">
+            <circle cx="12" cy="12" r="10" fill="currentColor" fillOpacity="0.2"/>
+            <path d="M12 16V12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="12" cy="8" r="1" fill="currentColor"/>
+          </svg>
+        );
+    }
   };
 
   return (
@@ -93,10 +133,10 @@ function App() {
           /* Upload State */
           <FileUpload onFileSelect={handleFileSelect} />
         ) : (
-          /* Success State - Show Extracted Text */
+          /* Success State - Show Extracted Text and Analysis */
           <div className="results-container">
             <div className="results-header">
-              <h2>Extracted Content</h2>
+              <h2>Analysis Results</h2>
               <button className="btn-secondary" onClick={handleReset}>
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M3 8C3 5.23858 5.23858 3 8 3C10.7614 3 13 5.23858 13 8C13 10.7614 10.7614 13 8 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
@@ -106,13 +146,36 @@ function App() {
               </button>
             </div>
             
-            <div className="extracted-text-panel">
-              <pre>{extractedText}</pre>
-            </div>
-            
-            {/* Phase 4 placeholder */}
-            <div className="analysis-placeholder">
-              <p>Engagement analysis suggestions will appear here in Phase 4.</p>
+            <div className="results-grid">
+              <div className="extracted-text-section">
+                <h3>Extracted Content</h3>
+                <div className="extracted-text-panel">
+                  <pre>{extractedText}</pre>
+                </div>
+              </div>
+              
+              <div className="analysis-section">
+                <h3>Engagement Suggestions</h3>
+                <div className="suggestions-list">
+                  {suggestions.length > 0 ? (
+                    suggestions.map((suggestion) => (
+                      <div key={suggestion.id} className={`suggestion-card ${suggestion.status}`}>
+                        {getStatusIcon(suggestion.status)}
+                        <div className="suggestion-content">
+                          <h4>{suggestion.label}</h4>
+                          <p>{suggestion.message}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="suggestion-card info">
+                      <div className="suggestion-content">
+                        <p>No actionable suggestions found for this content.</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         )}

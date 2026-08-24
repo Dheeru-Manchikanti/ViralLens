@@ -26,7 +26,7 @@ function App() {
             </defs>
           </svg>
         </div>
-        <h1 className="app-title">Social Media Content Analyzer</h1>
+        <h1 className="app-title">ViralLens</h1>
         <p className="app-subtitle">
           Upload a PDF or image to extract text and get engagement suggestions
         </p>

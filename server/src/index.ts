@@ -14,7 +14,7 @@ app.use('/api/extract', extractRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', message: 'Social Media Content Analyzer API is running' });
+  res.json({ status: 'ok', message: 'ViralLens API is running' });
 });
 
 // Start server

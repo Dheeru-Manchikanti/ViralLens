@@ -1,4 +1,4 @@
-# Social Media Content Analyzer
+# ViralLens
 
 A web application that extracts text from uploaded PDFs and images (via PDF parsing and OCR) and analyzes the content to suggest social media engagement improvements.
 

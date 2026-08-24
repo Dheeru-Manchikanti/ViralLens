@@ -27,3 +27,6 @@ npm-debug.log*
 # Temp/upload files
 uploads/
 temp/
+
+# Tesseract language models (downloaded at runtime)
+*.traineddata
